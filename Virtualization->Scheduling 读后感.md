@@ -1,0 +1,51 @@
+- 假设有一个集合称之为 workload，workload 包括一些假设。我们将每个进程的工作称之为 jobs。这些假设包括：
+  - 每个 job 运行相同的时间。
+  - 每个 job 都在同一时刻到达。
+  - 一旦开始，每个 job 都会运行到结束，中途不会被打断。
+  - 所有的 job 都不会调用 I/O。
+  - 每个 job 的运行时间都是已知的。
+- 调度算法的度量法则。
+  - `turnaround time`  等于一个 job 的完成时刻减去到达的时刻所得到的时间差。
+  - `fairness`。
+  - `response time` 等于一个 job 第一次被调度的时刻减去到达的时刻所得到的时间差。
+- First In, First Out（FIFO）/ First Come, First Served（FCFS）
+  - 优点：简单、容易实现。
+  - 缺点：convoy effect （护航效应）。
+- Shortest Job First（SJF）
+  - 优点：最优算法。
+  - 缺点：需要较强的假设，必须保证每个 jobs 都要在同一时刻到达。
+- Shortest Time-to-Completion First（STCF）/ Preemptive Shortest Job First（PSJF）
+  - 优点：解决了 Shortest Job First 的问题。最优算法。
+  - 缺点：不是适合现在的时分机器，用户所在的终端需要能够与机器进行快速的交互。
+- Round Robin（RR）
+  - 优点：对 response time 非常敏感，非常公平。
+  - 缺点：太短的时间 time-slicing 使得上下文切换占据主导地位。在 `turnaround time` 这个度量上面表现的非常差。
+- 以上的算法都有致命的缺陷：比如需要知道每个程序的运行时间。比如对 turnaround time 和 response time 不敏感。
+- Multi-level Feedback Queue
+  - 如果 A 的优先级大于 B，A 运行，B 不运行。
+  - 如果 A 的优先级等于 B，A 和 B 用 RR 算法运行。
+  - 当一个 job 到达系统时，将它放置在最高级别的队列中。
+  - 当一个 job 运行完给定的时间以后，它的优先级将被降低。
+  - 经过一段时间后，将所有的 job 都移动到优先级最高的队列。
+-  lottery scheduling
+  - ticket 代表一个用户持有某个资源的概率。（ticket 这个概念异常强大，可以用于任何表示百分比占有资源的情景）
+  - ticket 机制
+    - ticket currency
+    - ticket transefer
+    - ticket inflation
+  - 实现
+    - 有序链表
+- stride scheduling
+  - 缺点：当一个新的 job 进来时，无法决定它的 Pass 的值时多少。
+- The Linux Completely Fair Scheduler（CFS）
+  - 目标：公平的分配时间。
+  - 每次选择 virtual runtime（vruntime）最小的 job 执行。vruntime 是一定比例的实际时间。
+  - sched_latency 用于控制上下文切换，一般设置为 48 毫秒。min_granularity 用于设置最小的时间片，一般设置为 6 毫秒。
+  - weight 用于设置每个进程的优先级。
+  - 红黑树实现。
+  - 唤醒的进程直接设置为最小的虚拟时间。
+- single queue multiprocesso scheduling（SQMS）
+  - 优点：简单
+  - 缺点：频繁加锁、没有考虑 cache affnity（缓存关联）。
+- multi-queue multiprocessor scheduling（MQMS）。
+  - 优点：解决cache afnity。
